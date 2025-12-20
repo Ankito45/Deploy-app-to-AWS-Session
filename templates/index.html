@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Result Analysis System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #667eea;
+            border: none;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .nav-tab:hover {
+            background: #78b3ed;
+        }
+        
+        .nav-tab.active {
+            background: #667eea;
+            border-bottom: 3px solid #667eea;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        input, select {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            flex: 1;
+        }
+        
+        button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .grade {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .grade-O { background: #28a745; color: white; }
+        .grade-A { background: #17a2b8; color: white; }
+        .grade-B { background: #007bff; color: white; }
+        .grade-C { background: #ffc107; color: black; }
+        .grade-P { background: #fd7e14; color: white; }
+        .grade-F { background: #dc3545; color: white; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .result-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .error {
+            color: #dc3545;
+            padding: 15px;
+            background: #f8d7da;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        
+        .graph-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .graph-container h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .graph-container img {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border-radius: 8px;
+        }
+        
+        .graphs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+    </style>
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 STUDENT RESULT ANALYSIS SYSTEM</h1>
+            <p>Comprehensive Institute Performance Dashboard</p>
+        </header>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('all-students')">All Students</button>
+            <button class="nav-tab" onclick="showTab('search')">Search Student</button>
+            <button class="nav-tab" onclick="showTab('toppers')">Toppers</button>
+            <button class="nav-tab" onclick="showTab('branches')">Branch Analysis</button>
+            <button class="nav-tab" onclick="showTab('statistics')">Statistics</button>
+             <button class="nav-tab" onclick="showTab('graphs')">Graphical Analysis</button>
+        </div>
+        
+        <div class="content">
+            <!-- All Students Tab -->
+            <div id="all-students" class="tab-content active">
+                <h2>All Students</h2>
+                <div class="table-container" id="all-students-table"></div>
+            </div>
+            
+            <!-- Search Student Tab -->
+            <div id="search" class="tab-content">
+                <h2>Search Student</h2>
+                <div class="search-box">
+                    <input type="number" id="search-roll" placeholder="Enter Roll Number">
+                    <button onclick="searchStudent()">Search</button>
+                </div>
+                <div id="search-result"></div>
+                
+                <h3 style="margin-top: 30px;">Filter by Grade</h3>
+                <div class="search-box">
+                    <select id="grade-filter">
+                        <option value="">Select Grade</option>
+                        <option value="O">O - Outstanding</option>
+                        <option value="A">A - Excellent</option>
+                        <option value="B">B - Good</option>
+                        <option value="C">C - Average</option>
+                        <option value="P">P - Pass</option>
+                        <option value="F">F - Fail</option>
+                    </select>
+                    <button onclick="filterByGrade()">Filter</button>
+                </div>
+                <div id="grade-result"></div>
+            </div>
+            
+            <!-- Toppers Tab -->
+            <div id="toppers" class="tab-content">
+                <h2>Toppers</h2>
+                <div id="toppers-content"></div>
+                
+                <h3 style="margin-top: 30px;">Top 10 Students</h3>
+                <div id="top-10-table"></div>
+            </div>
+            
+            <!-- Branch Analysis Tab -->
+            <div id="branches" class="tab-content">
+                <h2>Branch-wise Analysis</h2>
+                <div id="branch-stats"></div>
+                <div id="branch-students"></div>
+            </div>
+            
+            <!-- Statistics Tab -->
+            <div id="statistics" class="tab-content">
+                <h2>Institute Statistics</h2>
+                <div id="stats-content"></div>
+            </div>
+
+             <!-- Graphical Analysis Tab -->
+            <div id="graphs" class="tab-content">
+                <h2>📊 Graphical Analysis</h2>
+                <div id="graphs-content"></div>
+            </div>
+
+        </div>
+    </div>
+    
+    <script>
+        // Tab switching
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const navTabs = document.querySelectorAll('.nav-tab');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            navTabs.forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Load data for specific tabs
+            if (tabName === 'all-students') loadAllStudents();
+            if (tabName === 'toppers') loadToppers();
+            if (tabName === 'branches') loadBranches();
+            if (tabName === 'statistics') loadStatistics();
+            if (tabName === 'graphs') loadGraphs();
+        }
+        
+        // Load all students
+        async function loadAllStudents() {
+            const container = document.getElementById('all-students-table');
+            container.innerHTML = '<div class="loading">Loading...</div>';
+            
+            try {
+                const response = await fetch('/api/all-students');
+                const students = await response.json();
+                
+                let html = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Name</th>
+                                <th>Branch</th>
+                                <th>Marks</th>
+                                <th>Total</th>
+                                <th>Percentage</th>
+                                <th>Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                students.forEach(student => {
+                    html += `
+                        <tr>
+                            <td>${student.roll}</td>
+                            <td>${student.name}</td>
+                            <td>${student.branch}</td>
+                            <td>${student.marks.join(', ')}</td>
+                            <td>${student.total_marks}</td>
+                            <td>${student.percentage}%</td>
+                            <td><span class="grade grade-${student.grade}">${student.grade}</span></td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = '<div class="error">Failed to load students</div>';
+            }
+        }
+        
+        // Search student by roll
+        async function searchStudent() {
+            const roll = document.getElementById('search-roll').value;
+            const resultDiv = document.getElementById('search-result');
+            
+            if (!roll) {
+                resultDiv.innerHTML = '<div class="error">Please enter a roll number</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="loading">Searching...</div>';
+            
+            try {
+                const response = await fetch(`/api/student/${roll}`);
+                
+                if (!response.ok) {
+                    resultDiv.innerHTML = '<div class="error">Student not found</div>';
+                    return;
+                }
+                
+                const student = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="result-box">
+                        <h3>Student Details</h3>
+                        <p><strong>Roll Number:</strong> ${student.roll}</p>
+                        <p><strong>Name:</strong> ${student.name}</p>
+                        <p><strong>Branch:</strong> ${student.branch}</p>
+                        <p><strong>Marks:</strong> ${student.marks.join(', ')}</p>
+                        <p><strong>Total Marks:</strong> ${student.total_marks}/300</p>
+                        <p><strong>Percentage:</strong> ${student.percentage}%</p>
+                        <p><strong>Grade:</strong> <span class="grade grade-${student.grade}">${student.grade}</span></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="error">Error fetching student data</div>';
+            }
+        }
+        
+        // Filter by grade
+        async function filterByGrade() {
+            const grade = document.getElementById('grade-filter').value;
+            const resultDiv = document.getElementById('grade-result');
+            
+            if (!grade) {
+                resultDiv.innerHTML = '<div class="error">Please select a grade</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="loading">Loading...</div>';
+            
+            try {
+                const response = await fetch(`/api/students-by-grade/${grade}`);
+                const students = await response.json();
+                
+                if (students.length === 0) {
+                    resultDiv.innerHTML = '<div class="result-box">No students found with this grade</div>';
+                    return;
+                }
+                
+                let html = `
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Roll No</th>
+                                    <th>Name</th>
+                                    <th>Branch</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                students.forEach(student => {
+                    html += `
+                        <tr>
+                            <td>${student.roll}</td>
+                            <td>${student.name}</td>
+                            <td>${student.branch}</td>
+                            <td>${student.percentage}%</td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody></table></div>';
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="error">Error loading data</div>';
+            }
+        }
+        
+        // Load toppers
+        async function loadToppers() {
+            const container = document.getElementById('toppers-content');
+            const top10Container = document.getElementById('top-10-table');
+            
+            container.innerHTML = '<div class="loading">Loading...</div>';
+            
+            try {
+                const response = await fetch('/api/toppers');
+                const data = await response.json();
+                
+                let html = '<div class="result-box"><h3>Overall Topper</h3>';
+                html += `<p><strong>${data.overall_topper.name}</strong> (Roll: ${data.overall_topper.roll})</p>`;
+                html += `<p>Branch: ${data.overall_topper.branch} | Percentage: ${data.overall_topper.percentage}%</p>`;
+                html += '</div>';
+                
+                html += '<div class="stats-grid">';
+                for (const [branch, topper] of Object.entries(data.branch_toppers)) {
+                    html += `
+                        <div class="stat-card">
+                            <h4>${branch} Topper</h4>
+                            <h3>${topper.name}</h3>
+                            <p>Roll: ${topper.roll}</p>
+                            <p>${topper.percentage}%</p>
+                        </div>
+                    `;
+                }
+                html += '</div>';
+                
+                container.innerHTML = html;
+                
+                // Load top 10
+                const top10Response = await fetch('/api/top-students/10');
+                const top10 = await top10Response.json();
+                
+                let table = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Roll No</th>
+                                <th>Name</th>
+                                <th>Branch</th>
+                                <th>Percentage</th>
+                                <th>Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                top10.forEach((student, index) => {
+                    table += `
+                        <tr>
+                            <td><strong>${index + 1}</strong></td>
+                            <td>${student.roll}</td>
+                            <td>${student.name}</td>
+                            <td>${student.branch}</td>
+                            <td>${student.percentage}%</td>
+                            <td><span class="grade grade-${student.grade}">${student.grade}</span></td>
+                        </tr>
+                    `;
+                });
+                
+                table += '</tbody></table>';
+                top10Container.innerHTML = table;
+            } catch (error) {
+                container.innerHTML = '<div class="error">Error loading toppers</div>';
+            }
+        }
+        
+        // Load branch analysis
+        async function loadBranches() {
+            const statsDiv = document.getElementById('branch-stats');
+            const studentsDiv = document.getElementById('branch-students');
+            
+            try {
+                const response = await fetch('/api/branches');
+                const data = await response.json();
+                
+                let html = '<div class="stats-grid">';
+                for (const [branch, count] of Object.entries(data.branch_count)) {
+                    html += `
+                        <div class="stat-card">
+                            <h3>${count}</h3>
+                            <p>${branch} Students</p>
+                        </div>
+                    `;
+                }
+                html += '</div>';
+                statsDiv.innerHTML = html;
+                
+                // Load branch-wise students
+                const studentsResponse = await fetch('/api/branch-wise-students');
+                const branchStudents = await studentsResponse.json();
+                
+                let studentsHtml = '<div class="result-box">';
+                for (const [branch, rolls] of Object.entries(branchStudents)) {
+                    studentsHtml += `<h4>${branch}</h4><p>Roll Numbers: ${rolls.join(', ')}</p>`;
+                }
+                studentsHtml += '</div>';
+                studentsDiv.innerHTML = studentsHtml;
+            } catch (error) {
+                statsDiv.innerHTML = '<div class="error">Error loading branch data</div>';
+            }
+        }
+        
+        // Load statistics
+        async function loadStatistics() {
+            const container = document.getElementById('stats-content');
+            container.innerHTML = '<div class="loading">Loading...</div>';
+            
+            try {
+                const response = await fetch('/api/statistics');
+                const stats = await response.json();
+                
+                let html = '<div class="stats-grid">';
+                html += `
+                    <div class="stat-card">
+                        <h3>${stats.total_students}</h3>
+                        <p>Total Students</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${stats.average_percentage}%</h3>
+                        <p>Average Percentage</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${stats.highest_percentage}%</h3>
+                        <p>Highest Percentage</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${stats.lowest_percentage}%</h3>
+                        <p>Lowest Percentage</p>
+                    </div>
+                `;
+                html += '</div>';
+                
+                html += '<h3 style="margin-top: 30px;">Grade Distribution</h3>';
+                html += '<div class="stats-grid">';
+                for (const [grade, count] of Object.entries(stats.grades_distribution)) {
+                    html += `
+                        <div class="stat-card">
+                            <h3>${count}</h3>
+                            <p>Grade ${grade}</p>
+                        </div>
+                    `;
+                }
+                html += '</div>';
+                
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = '<div class="error">Error loading statistics</div>';
+            }
+        }
+        
+        // Load graphical analysis
+        async function loadGraphs() {
+            const container = document.getElementById('graphs-content');
+            container.innerHTML = '<div class="loading">Generating graphs...</div>';
+            
+            try {
+                const response = await fetch('/api/generate-graphs');
+                const data = await response.json();
+                
+                let html = '<div class="graphs-grid">';
+                
+                html += `
+                    <div class="graph-container">
+                        <h3>📊 Grade Distribution</h3>
+                        <img src="data:image/png;base64,${data.grade_distribution}" alt="Grade Distribution">
+                    </div>
+                    <div class="graph-container">
+                        <h3>🏫 Branch-wise Average Performance</h3>
+                        <img src="data:image/png;base64,${data.branch_performance}" alt="Branch Performance">
+                    </div>
+                `;
+                
+                html += '</div>';
+                
+                html += `
+                    <div class="graph-container">
+                        <h3>📈 Percentage Distribution</h3>
+                        <img src="data:image/png;base64,${data.percentage_histogram}" alt="Percentage Histogram">
+                    </div>
+                    <div class="graph-container">
+                        <h3>🏆 Top 10 Students Performance</h3>
+                        <img src="data:image/png;base64,${data.top_10_chart}" alt="Top 10 Chart">
+                    </div>
+                    <div class="graph-container">
+                        <h3>📚 Subject-wise Average Marks</h3>
+                        <img src="data:image/png;base64,${data.subject_analysis}" alt="Subject Analysis">
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = '<div class="error">Error generating graphs</div>';
+            }
+        }
+        
+        // Load initial data
+        loadAllStudents();
+    </script>
+</body>
+</html>
