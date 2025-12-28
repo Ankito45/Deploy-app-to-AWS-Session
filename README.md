@@ -164,7 +164,22 @@ chmod +x app.py
 # Or run with python3 explicitly
 python3 app.py
 ```
+### Push the Docker image to Dockerhub
 
+```bash
+# Build
+docker build -t DOCKER_USERNAME/student-analysis:latest .
+
+# Run
+docker run -p 5000:5000 --name student-analysis DOCKER_USERNAME/student-analysis:latest
+
+# Test
+curl http://localhost:5000
+
+# Push
+docker login
+docker push DOCKER_USERNAME/student-analysis:latest
+```
 ## Features
 
 - View all students with calculated grades
@@ -175,10 +190,3 @@ python3 app.py
 - Generate comprehensive reports
 - Data visualization with matplotlib
 
-## Tech Stack
-
-- **Backend:** Flask 3.0.0
-- **Data Processing:** Pandas 2.1.4
-- **Visualization:** Matplotlib 3.8.2
-- **Server:** Gunicorn (production)
-- **Reverse Proxy:** Nginx (optional)
